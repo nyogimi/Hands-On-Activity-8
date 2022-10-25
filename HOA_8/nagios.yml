@@ -1,0 +1,42 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Remote CentOS server Update and Upgrade
+    dnf:
+      update_cache: yes
+      name: "*"
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+  - name: Ubuntu Servers fixing by Dpkg
+    shell: |
+      dpkg --configure -a
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Remote Ubuntu server Update and Upgrade
+    apt:
+      update_cache: yes
+      upgrade: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: nagios_servers
+  become: true
+  tasks:
+
+  - name: Install Nagios (CentOS)
+    yum:
+      name:
+        - nagios
+        - nagios-plugins
+    when: ansible_distribution == "CentOS"
+
+  - name: Install Nagios (Ubuntu)
+    apt:
+      name:
+        - nagios4
+        - nagios-plugins
+        - nagios-nrpe-server
+    when: ansible_distribution == "Ubuntu"
